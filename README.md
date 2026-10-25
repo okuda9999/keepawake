@@ -58,7 +58,8 @@ swift test
 - `Sources/KeepAwakeAssertionQA`: 実 assertion の短時間 QA ヘルパー
 - `Tests`: ユニットテスト
 - `scripts/build-app.sh`: `.app` 生成
-- `scripts/generate-icons.swift`: AppKit ベクター描画からアプリアイコンを再生成
+- `scripts/generate-icons.swift`: 保存した原画から外周を切り抜き、各サイズのアプリアイコンを再生成
+- `Resources/OriginalIconSource.jpg`: ユーザー指定のアプリアイコン原画
 - `Resources/IconPreview.png`: アプリアイコンの 1024px プレビュー
 
 ## ライセンス

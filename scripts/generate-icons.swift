@@ -7,10 +7,36 @@ guard CommandLine.arguments.count == 2 else {
 }
 
 let resourcesURL = URL(fileURLWithPath: CommandLine.arguments[1], isDirectory: true)
+let sourceURL = resourcesURL.appendingPathComponent("OriginalIconSource.jpg")
 let iconsetURL = resourcesURL.appendingPathComponent("AppIcon.iconset", isDirectory: true)
 let fileManager = FileManager.default
+
+guard
+    let sourceData = try? Data(contentsOf: sourceURL),
+    let sourceRep = NSBitmapImageRep(data: sourceData),
+    let sourceCGImage = sourceRep.cgImage
+else {
+    fputs("missing or unreadable icon source: \(sourceURL.path)\n", stderr)
+    exit(1)
+}
+
 try? fileManager.removeItem(at: iconsetURL)
 try fileManager.createDirectory(at: iconsetURL, withIntermediateDirectories: true)
+
+// The supplied 1536 x 1024 JPEG contains a centered icon surrounded by a
+// checkerboard baked into the pixels. This square source crop and rounded mask
+// preserve the supplied icon artwork while excluding only that outer area.
+let sourceCrop = CGRect(x: 430, y: 100, width: 550, height: 550)
+guard let croppedCGImage = sourceCGImage.cropping(to: sourceCrop) else {
+    fputs("could not crop icon source\n", stderr)
+    exit(1)
+}
+let croppedImage = NSImage(cgImage: croppedCGImage, size: NSSize(width: 1024, height: 1024))
+let frameMask = NSBezierPath(
+    roundedRect: NSRect(x: 64, y: 56, width: 896, height: 958),
+    xRadius: 205,
+    yRadius: 205
+)
 
 func drawIcon(pixelSize: Int) throws -> Data {
     guard let bitmap = NSBitmapImageRep(
@@ -34,81 +60,17 @@ func drawIcon(pixelSize: Int) throws -> Data {
     NSGraphicsContext.current = context
     context.imageInterpolation = .high
 
-    NSColor(calibratedRed: 1.0, green: 0.969, blue: 0.91, alpha: 1).setFill()
-    NSBezierPath(roundedRect: NSRect(x: 40, y: 40, width: 944, height: 944), xRadius: 210, yRadius: 210).fill()
-
-    let outlineColor = NSColor(calibratedRed: 0.12, green: 0.17, blue: 0.22, alpha: 1)
-    let coffeeColor = NSColor(calibratedRed: 1.0, green: 0.73, blue: 0.12, alpha: 1)
-    outlineColor.setStroke()
-    let display = NSBezierPath(roundedRect: NSRect(x: 122, y: 310, width: 780, height: 500), xRadius: 62, yRadius: 62)
-    display.lineWidth = 52
-    display.stroke()
-
-    let stand = NSBezierPath()
-    stand.lineWidth = 52
-    stand.lineCapStyle = .round
-    stand.move(to: NSPoint(x: 470, y: 310))
-    stand.line(to: NSPoint(x: 470, y: 208))
-    stand.move(to: NSPoint(x: 330, y: 190))
-    stand.line(to: NSPoint(x: 610, y: 190))
-    stand.stroke()
-
-    // Keep the complete cup inside the display's inner area. The handle is
-    // drawn first so the body hides its inner edge cleanly at small sizes.
-    let handle = NSBezierPath(ovalIn: NSRect(x: 606, y: 408, width: 142, height: 126))
-    handle.lineWidth = 46
-    coffeeColor.setStroke()
-    handle.stroke()
-
-    let cup = NSBezierPath()
-    cup.move(to: NSPoint(x: 394, y: 570))
-    cup.curve(
-        to: NSPoint(x: 640, y: 570),
-        controlPoint1: NSPoint(x: 394, y: 586),
-        controlPoint2: NSPoint(x: 640, y: 586)
+    NSColor.clear.setFill()
+    NSBezierPath(rect: NSRect(x: 0, y: 0, width: 1024, height: 1024)).fill()
+    frameMask.addClip()
+    croppedImage.draw(
+        in: NSRect(x: 0, y: 0, width: 1024, height: 1024),
+        from: NSRect(x: 0, y: 0, width: 1024, height: 1024),
+        operation: .sourceOver,
+        fraction: 1,
+        respectFlipped: false,
+        hints: [.interpolation: NSImageInterpolation.high]
     )
-    cup.line(to: NSPoint(x: 626, y: 438))
-    cup.curve(
-        to: NSPoint(x: 568, y: 358),
-        controlPoint1: NSPoint(x: 622, y: 390),
-        controlPoint2: NSPoint(x: 598, y: 358)
-    )
-    cup.line(to: NSPoint(x: 466, y: 358))
-    cup.curve(
-        to: NSPoint(x: 408, y: 438),
-        controlPoint1: NSPoint(x: 436, y: 358),
-        controlPoint2: NSPoint(x: 412, y: 390)
-    )
-    cup.close()
-    coffeeColor.setFill()
-    cup.fill()
-    outlineColor.setStroke()
-    cup.lineWidth = 42
-    cup.stroke()
-
-    let rim = NSBezierPath(ovalIn: NSRect(x: 394, y: 536, width: 246, height: 76))
-    coffeeColor.setFill()
-    rim.fill()
-    outlineColor.setStroke()
-    rim.lineWidth = 36
-    rim.stroke()
-
-    let coffeeSurface = NSBezierPath(ovalIn: NSRect(x: 426, y: 553, width: 182, height: 38))
-    outlineColor.setFill()
-    coffeeSurface.fill()
-
-    let steam = NSBezierPath()
-    steam.lineWidth = 32
-    steam.lineCapStyle = .round
-    for x in [454.0, 517.0, 580.0] {
-        steam.move(to: NSPoint(x: x, y: 632))
-        steam.curve(
-            to: NSPoint(x: x + 8, y: 732),
-            controlPoint1: NSPoint(x: x - 30, y: 664),
-            controlPoint2: NSPoint(x: x + 36, y: 700)
-        )
-    }
-    steam.stroke()
 
     context.flushGraphics()
     NSGraphicsContext.restoreGraphicsState()
