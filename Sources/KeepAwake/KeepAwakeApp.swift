@@ -33,61 +33,75 @@ private enum StatusIcon {
             NSColor.black.setStroke()
             NSColor.black.setFill()
 
-            let screen = NSBezierPath(roundedRect: NSRect(x: 1.2, y: 6.1, width: 11.8, height: 8.8), xRadius: 1.7, yRadius: 1.7)
+            let screen = NSBezierPath(roundedRect: NSRect(x: 0.8, y: 3.3, width: 16.4, height: 13.7), xRadius: 2, yRadius: 2)
             screen.lineWidth = 1.5
             screen.stroke()
 
             let stand = NSBezierPath()
             stand.lineWidth = 1.4
             stand.lineCapStyle = .round
-            stand.move(to: NSPoint(x: 4, y: 4.2))
-            stand.line(to: NSPoint(x: 8, y: 4.2))
-            stand.move(to: NSPoint(x: 6, y: 4.2))
-            stand.line(to: NSPoint(x: 6, y: 6.1))
+            stand.move(to: NSPoint(x: 6.2, y: 1.3))
+            stand.line(to: NSPoint(x: 11.8, y: 1.3))
+            stand.move(to: NSPoint(x: 9, y: 1.3))
+            stand.line(to: NSPoint(x: 9, y: 3.3))
             stand.stroke()
 
-            let handle = NSBezierPath(ovalIn: NSRect(x: 13.9, y: 3, width: 3.2, height: 4.1))
-            handle.lineWidth = 1.3
+            let handle = NSBezierPath(ovalIn: NSRect(x: 11, y: 6.2, width: 3.6, height: 3.6))
+            handle.lineWidth = 1.2
             handle.stroke()
 
             let cup = NSBezierPath()
-            cup.move(to: NSPoint(x: 9.5, y: 8.2))
+            cup.move(to: NSPoint(x: 6.2, y: 10.2))
             cup.curve(
-                to: NSPoint(x: 15.3, y: 8.2),
-                controlPoint1: NSPoint(x: 9.5, y: 8.55),
-                controlPoint2: NSPoint(x: 15.3, y: 8.55)
+                to: NSPoint(x: 12.2, y: 10.2),
+                controlPoint1: NSPoint(x: 6.2, y: 10.55),
+                controlPoint2: NSPoint(x: 12.2, y: 10.55)
             )
-            cup.line(to: NSPoint(x: 15, y: 4.3))
+            cup.line(to: NSPoint(x: 11.9, y: 6.7))
             cup.curve(
-                to: NSPoint(x: 13.6, y: 2),
-                controlPoint1: NSPoint(x: 14.9, y: 2.9),
-                controlPoint2: NSPoint(x: 14.4, y: 2)
+                to: NSPoint(x: 10.5, y: 4.6),
+                controlPoint1: NSPoint(x: 11.8, y: 5.3),
+                controlPoint2: NSPoint(x: 11.3, y: 4.6)
             )
-            cup.line(to: NSPoint(x: 11.2, y: 2))
+            cup.line(to: NSPoint(x: 7.9, y: 4.6))
             cup.curve(
-                to: NSPoint(x: 9.8, y: 4.3),
-                controlPoint1: NSPoint(x: 10.4, y: 2),
-                controlPoint2: NSPoint(x: 9.9, y: 2.9)
+                to: NSPoint(x: 6.5, y: 6.7),
+                controlPoint1: NSPoint(x: 7.1, y: 4.6),
+                controlPoint2: NSPoint(x: 6.6, y: 5.3)
             )
             cup.close()
-            cup.lineWidth = 1.3
+            cup.lineWidth = 1.2
             if isActive { cup.fill() } else { cup.stroke() }
+
+            let rim = NSBezierPath(ovalIn: NSRect(x: 6.2, y: 9.3, width: 6, height: 2))
+            rim.lineWidth = 1.15
+            if isActive { rim.fill() } else { rim.stroke() }
+
+            let coffeeSurface = NSBezierPath(ovalIn: NSRect(x: 7.2, y: 9.75, width: 4, height: 0.8))
+            if isActive {
+                NSGraphicsContext.saveGraphicsState()
+                NSGraphicsContext.current?.compositingOperation = .clear
+                coffeeSurface.fill()
+                NSGraphicsContext.restoreGraphicsState()
+            } else {
+                coffeeSurface.fill()
+            }
 
             if isActive {
                 let steam = NSBezierPath()
                 steam.lineWidth = 1.2
                 steam.lineCapStyle = .round
-                steam.move(to: NSPoint(x: 11.2, y: 9.5))
+                steam.move(to: NSPoint(x: 7.9, y: 12))
                 steam.curve(
-                    to: NSPoint(x: 11.5, y: 12.2),
-                    controlPoint1: NSPoint(x: 10.3, y: 10.3),
-                    controlPoint2: NSPoint(x: 12.2, y: 11.2)
+                    to: NSPoint(x: 8.2, y: 14.7),
+                    controlPoint1: NSPoint(x: 7, y: 12.8),
+                    controlPoint2: NSPoint(x: 8.9, y: 13.7)
                 )
-                steam.move(to: NSPoint(x: 13.6, y: 9.5))
+                steam.move(to: NSPoint(x: 10.4, y: 12))
                 steam.curve(
-                    to: NSPoint(x: 13.9, y: 12.2),
-                    controlPoint1: NSPoint(x: 12.7, y: 10.3),
-                    controlPoint2: NSPoint(x: 14.6, y: 11.2)
+                    to: NSPoint(x: 10.7, y: 14.7),
+                    controlPoint1: NSPoint(x: 9.5, y: 12.8),
+                    controlPoint2: NSPoint(x: 11.4, y: 13.7)
                 )
                 steam.stroke()
             }

@@ -53,31 +53,31 @@ func drawIcon(pixelSize: Int) throws -> Data {
     stand.line(to: NSPoint(x: 610, y: 190))
     stand.stroke()
 
-    // The handle is drawn first so the yellow cup remains a strong silhouette
-    // at 16 and 32 pixels.
-    let handle = NSBezierPath(ovalIn: NSRect(x: 738, y: 204, width: 158, height: 146))
-    handle.lineWidth = 52
+    // Keep the complete cup inside the display's inner area. The handle is
+    // drawn first so the body hides its inner edge cleanly at small sizes.
+    let handle = NSBezierPath(ovalIn: NSRect(x: 606, y: 408, width: 142, height: 126))
+    handle.lineWidth = 46
     coffeeColor.setStroke()
     handle.stroke()
 
     let cup = NSBezierPath()
-    cup.move(to: NSPoint(x: 552, y: 382))
+    cup.move(to: NSPoint(x: 394, y: 570))
     cup.curve(
-        to: NSPoint(x: 796, y: 382),
-        controlPoint1: NSPoint(x: 552, y: 398),
-        controlPoint2: NSPoint(x: 796, y: 398)
+        to: NSPoint(x: 640, y: 570),
+        controlPoint1: NSPoint(x: 394, y: 586),
+        controlPoint2: NSPoint(x: 640, y: 586)
     )
-    cup.line(to: NSPoint(x: 784, y: 242))
+    cup.line(to: NSPoint(x: 626, y: 438))
     cup.curve(
-        to: NSPoint(x: 724, y: 154),
-        controlPoint1: NSPoint(x: 780, y: 190),
-        controlPoint2: NSPoint(x: 758, y: 154)
+        to: NSPoint(x: 568, y: 358),
+        controlPoint1: NSPoint(x: 622, y: 390),
+        controlPoint2: NSPoint(x: 598, y: 358)
     )
-    cup.line(to: NSPoint(x: 624, y: 154))
+    cup.line(to: NSPoint(x: 466, y: 358))
     cup.curve(
-        to: NSPoint(x: 564, y: 242),
-        controlPoint1: NSPoint(x: 590, y: 154),
-        controlPoint2: NSPoint(x: 568, y: 190)
+        to: NSPoint(x: 408, y: 438),
+        controlPoint1: NSPoint(x: 436, y: 358),
+        controlPoint2: NSPoint(x: 412, y: 390)
     )
     cup.close()
     coffeeColor.setFill()
@@ -86,22 +86,26 @@ func drawIcon(pixelSize: Int) throws -> Data {
     cup.lineWidth = 42
     cup.stroke()
 
-    let rim = NSBezierPath()
-    rim.lineWidth = 30
-    rim.lineCapStyle = .round
-    rim.move(to: NSPoint(x: 590, y: 365))
-    rim.line(to: NSPoint(x: 758, y: 365))
+    let rim = NSBezierPath(ovalIn: NSRect(x: 394, y: 536, width: 246, height: 76))
+    coffeeColor.setFill()
+    rim.fill()
+    outlineColor.setStroke()
+    rim.lineWidth = 36
     rim.stroke()
+
+    let coffeeSurface = NSBezierPath(ovalIn: NSRect(x: 426, y: 553, width: 182, height: 38))
+    outlineColor.setFill()
+    coffeeSurface.fill()
 
     let steam = NSBezierPath()
     steam.lineWidth = 32
     steam.lineCapStyle = .round
-    for x in [610.0, 682.0, 754.0] {
-        steam.move(to: NSPoint(x: x, y: 452))
+    for x in [454.0, 517.0, 580.0] {
+        steam.move(to: NSPoint(x: x, y: 632))
         steam.curve(
-            to: NSPoint(x: x + 8, y: 570),
-            controlPoint1: NSPoint(x: x - 34, y: 490),
-            controlPoint2: NSPoint(x: x + 42, y: 528)
+            to: NSPoint(x: x + 8, y: 732),
+            controlPoint1: NSPoint(x: x - 30, y: 664),
+            controlPoint2: NSPoint(x: x + 36, y: 700)
         )
     }
     steam.stroke()
