@@ -18,6 +18,33 @@ private final class FakeProvider: PowerAssertionProviding {
     func release(_ id: IOPMAssertionID) { released.append(id) }
 }
 
+private final class FakeTimer: CountdownTimer {
+    private(set) var isInvalidated = false
+    func invalidate() { isInvalidated = true }
+}
+
+@MainActor
+private final class FakeScheduler: CountdownScheduling {
+    let timer = FakeTimer()
+    private(set) var interval: TimeInterval?
+    private var action: (() -> Void)?
+
+    func scheduleRepeating(every interval: TimeInterval, action: @escaping () -> Void) -> CountdownTimer {
+        self.interval = interval
+        self.action = action
+        return timer
+    }
+
+    func fire() { action?() }
+}
+
+private final class RunLoopSpy: TimerRegistering {
+    private(set) var mode: RunLoop.Mode?
+    func add(_ timer: Timer, forMode mode: RunLoop.Mode) {
+        self.mode = mode
+    }
+}
+
 final class KeepAwakeCoreTests: XCTestCase {
     func testDurationSettings() {
         XCTAssertEqual(KeepAwakeDuration.oneHour.seconds, 3_600)
@@ -48,20 +75,47 @@ final class KeepAwakeCoreTests: XCTestCase {
         XCTAssertEqual(provider.released, [100])
     }
 
+    func testStopIsIdempotent() throws {
+        let provider = FakeProvider()
+        let session = AssertionSession(provider: provider)
+        try session.start(duration: .untilStopped)
+        session.stop()
+        session.stop()
+        XCTAssertEqual(provider.released, [100])
+    }
+
     @MainActor
     func testCountdownExpiryStopsAndReleases() {
         let provider = FakeProvider()
+        let scheduler = FakeScheduler()
         var date = Date(timeIntervalSince1970: 1_000)
-        let model = KeepAwakeModel(provider: provider, now: { date })
+        let model = KeepAwakeModel(provider: provider, now: { date }, scheduler: scheduler)
 
         model.start(.oneHour)
         XCTAssertTrue(model.isActive)
+        XCTAssertEqual(scheduler.interval, 1)
         date.addTimeInterval(3_601)
-        model.updateCountdown()
+        scheduler.fire()
 
         XCTAssertFalse(model.isActive)
         XCTAssertNil(model.remainingSeconds)
         XCTAssertEqual(provider.released, [100])
+        XCTAssertTrue(scheduler.timer.isInvalidated)
+    }
+
+    @MainActor
+    func testRemainingTextUsesJapaneseUnits() {
+        let model = KeepAwakeModel(provider: FakeProvider(), scheduler: FakeScheduler())
+        model.start(.oneHour)
+        XCTAssertEqual(model.remainingText, "残り 1時間00分")
+    }
+
+    @MainActor
+    func testProductionTimerRegistersInCommonRunLoopMode() {
+        let runLoop = RunLoopSpy()
+        let timer = CommonModeCountdownScheduler(runLoop: runLoop).scheduleRepeating(every: 1) {}
+        timer.invalidate()
+        XCTAssertEqual(runLoop.mode, .common)
     }
 
     @MainActor

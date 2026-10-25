@@ -9,15 +9,18 @@ public final class KeepAwakeModel: ObservableObject {
 
     private let session: AssertionSession
     private let now: () -> Date
+    private let scheduler: CountdownScheduling
     private var endDate: Date?
-    private var timer: Timer?
+    private var timer: CountdownTimer?
 
     public init(
         provider: PowerAssertionProviding = IOKitPowerAssertionProvider(),
-        now: @escaping () -> Date = Date.init
+        now: @escaping () -> Date = Date.init,
+        scheduler: CountdownScheduling? = nil
     ) {
         session = AssertionSession(provider: provider)
         self.now = now
+        self.scheduler = scheduler ?? CommonModeCountdownScheduler()
     }
 
     public func start(_ duration: KeepAwakeDuration) {
@@ -29,8 +32,8 @@ public final class KeepAwakeModel: ObservableObject {
             if let seconds = duration.seconds {
                 endDate = now().addingTimeInterval(seconds)
                 remainingSeconds = seconds
-                timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
-                    Task { @MainActor in self?.updateCountdown() }
+                timer = scheduler.scheduleRepeating(every: 1) { [weak self] in
+                    self?.updateCountdown()
                 }
             } else {
                 endDate = nil
@@ -61,7 +64,12 @@ public final class KeepAwakeModel: ObservableObject {
     public var remainingText: String? {
         guard let remainingSeconds else { return nil }
         let totalMinutes = Int(ceil(remainingSeconds / 60))
-        return String(format: "残り %d:%02d", totalMinutes / 60, totalMinutes % 60)
+        let hours = totalMinutes / 60
+        let minutes = totalMinutes % 60
+        if hours > 0 {
+            return String(format: "残り %d時間%02d分", hours, minutes)
+        }
+        return "残り \(minutes)分"
     }
 
     deinit {

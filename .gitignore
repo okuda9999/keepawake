@@ -2,5 +2,6 @@
 /.build/
 /.cache/
 /dist/
+/.swiftpm/
 *.xcuserstate
 xcuserdata/

@@ -24,7 +24,7 @@ KeepAwake は macOS の正規の IOKit power management assertion (`PreventUserI
 - 手動ロック、Apple メニュー等からの明示的なスリープ、MacBook の蓋閉じ、低バッテリー、熱保護、OS のセキュリティ／電源判断は回避しません。
 - すでに消えているディスプレイを点灯させる機能ではありません。
 - アプリがクラッシュまたは強制終了した場合、プロセス終了に伴い assertion は OS により破棄されます。通常の停止・期限切れ・終了ではアプリ自身が明示解除します。
-- ネットワーク接続や別アプリの接続維持を保証しません。特に Dot 接続の継続は保証しません。
+- ネットワーク接続や、遠隔操作・通信アプリ等の接続維持は保証しません。
 - システム設定を恒久的に変更しません。
 
 根拠: Apple の [`IOPMAssertionCreateWithDescription`](https://developer.apple.com/documentation/iokit/1557078-iopmassertioncreatewithdescription) および [`kIOPMAssertionTypePreventUserIdleDisplaySleep`](https://developer.apple.com/documentation/iokit/kiopmassertiontypepreventuseridledisplaysleep) の仕様に従っています。
@@ -32,7 +32,7 @@ KeepAwake は macOS の正規の IOKit power management assertion (`PreventUserI
 ## 再現可能なビルド
 
 ```sh
-git clone <repository-url>
+git clone https://github.com/okuda9999/keepawake.git
 cd keepawake
 swift test
 ./scripts/build-app.sh
@@ -58,6 +58,8 @@ swift test
 - `Sources/KeepAwakeAssertionQA`: 実 assertion の短時間 QA ヘルパー
 - `Tests`: ユニットテスト
 - `scripts/build-app.sh`: `.app` 生成
+- `scripts/generate-icons.swift`: AppKit ベクター描画からアプリアイコンを再生成
+- `Resources/IconPreview.png`: アプリアイコンの 1024px プレビュー
 
 ## ライセンス
 

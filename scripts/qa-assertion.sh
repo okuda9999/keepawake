@@ -24,19 +24,30 @@ while [ "$i" -lt 20 ] && ! grep -q QA_ASSERTION_ACTIVE "$LOG_FILE"; do
 done
 
 grep QA_ASSERTION_ACTIVE "$LOG_FILE"
-pmset -g assertions | grep -E "KeepAwakeAssertionQA|KeepAwake が選択時間中" || {
+pmset -g assertions | grep -F "pid $QA_PID(KeepAwakeAssertionQA)" || {
     echo "QA_ERROR: pmset で active assertion を確認できませんでした" >&2
     exit 1
 }
 
-wait "$QA_PID"
-grep QA_ASSERTION_RELEASED "$LOG_FILE"
+i=0
+while [ "$i" -lt 50 ] && ! grep -q QA_ASSERTION_RELEASED_PROCESS_ALIVE "$LOG_FILE"; do
+    sleep 0.1
+    i=$((i + 1))
+done
 
-if pmset -g assertions | grep -E "KeepAwakeAssertionQA|KeepAwake が選択時間中"; then
-    echo "QA_ERROR: assertion が残っています" >&2
+grep QA_ASSERTION_RELEASED_PROCESS_ALIVE "$LOG_FILE"
+kill -0 "$QA_PID" 2>/dev/null || {
+    echo "QA_ERROR: 明示 release の確認前に helper が終了しました" >&2
+    exit 1
+}
+
+if pmset -g assertions | grep -F "pid $QA_PID(KeepAwakeAssertionQA)"; then
+    echo "QA_ERROR: 生存中 helper の assertion が明示 release 後も残っています" >&2
     exit 1
 fi
 
+wait "$QA_PID"
+
 trap - EXIT INT TERM
 rm -f "$LOG_FILE"
-echo "QA_OK: assertion は開始後に確認され、終了後に解除されました"
+echo "QA_OK: assertion は開始後に存在し、同一プロセス生存中の明示 release 後に消滅しました"

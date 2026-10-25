@@ -20,10 +20,52 @@ struct KeepAwakeApp: App {
             KeepAwakeMenu(model: model)
                 .onAppear { appDelegate.onTerminate = { model.stop() } }
         } label: {
-            Image(systemName: model.isActive ? "cup.and.saucer.fill" : "cup.and.saucer")
+            Image(nsImage: StatusIcon.image(isActive: model.isActive))
                 .accessibilityLabel(model.isActive ? "KeepAwake オン" : "KeepAwake オフ")
         }
         .menuBarExtraStyle(.menu)
+    }
+}
+
+private enum StatusIcon {
+    static func image(isActive: Bool) -> NSImage {
+        let image = NSImage(size: NSSize(width: 18, height: 18), flipped: false) { bounds in
+            NSColor.black.setStroke()
+            NSColor.black.setFill()
+
+            let screen = NSBezierPath(roundedRect: NSRect(x: 2, y: 3.5, width: 14, height: 10.5), xRadius: 2, yRadius: 2)
+            screen.lineWidth = 1.5
+            screen.stroke()
+
+            let sunRect = NSRect(x: 6.5, y: 7, width: 5, height: 5)
+            let sun = NSBezierPath(ovalIn: sunRect)
+            if isActive { sun.fill() } else { sun.lineWidth = 1.25; sun.stroke() }
+
+            if isActive {
+                let rays = NSBezierPath()
+                rays.lineWidth = 1.25
+                for (start, end) in [
+                    (NSPoint(x: 9, y: 12.6), NSPoint(x: 9, y: 13.5)),
+                    (NSPoint(x: 6.1, y: 9.5), NSPoint(x: 5.2, y: 9.5)),
+                    (NSPoint(x: 11.9, y: 9.5), NSPoint(x: 12.8, y: 9.5))
+                ] {
+                    rays.move(to: start)
+                    rays.line(to: end)
+                }
+                rays.stroke()
+            }
+
+            let stand = NSBezierPath()
+            stand.lineWidth = 1.5
+            stand.move(to: NSPoint(x: 7, y: 2))
+            stand.line(to: NSPoint(x: 11, y: 2))
+            stand.move(to: NSPoint(x: 9, y: 2))
+            stand.line(to: NSPoint(x: 9, y: 3.5))
+            stand.stroke()
+            return true
+        }
+        image.isTemplate = true
+        return image
     }
 }
 
