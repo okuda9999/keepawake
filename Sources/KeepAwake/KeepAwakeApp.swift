@@ -33,35 +33,45 @@ private enum StatusIcon {
             NSColor.black.setStroke()
             NSColor.black.setFill()
 
-            let screen = NSBezierPath(roundedRect: NSRect(x: 2, y: 3.5, width: 14, height: 10.5), xRadius: 2, yRadius: 2)
+            let screen = NSBezierPath(roundedRect: NSRect(x: 1.2, y: 6.1, width: 11.8, height: 8.8), xRadius: 1.7, yRadius: 1.7)
             screen.lineWidth = 1.5
             screen.stroke()
 
-            let sunRect = NSRect(x: 6.5, y: 7, width: 5, height: 5)
-            let sun = NSBezierPath(ovalIn: sunRect)
-            if isActive { sun.fill() } else { sun.lineWidth = 1.25; sun.stroke() }
+            let stand = NSBezierPath()
+            stand.lineWidth = 1.4
+            stand.lineCapStyle = .round
+            stand.move(to: NSPoint(x: 4, y: 4.2))
+            stand.line(to: NSPoint(x: 8, y: 4.2))
+            stand.move(to: NSPoint(x: 6, y: 4.2))
+            stand.line(to: NSPoint(x: 6, y: 6.1))
+            stand.stroke()
+
+            let handle = NSBezierPath(ovalIn: NSRect(x: 14.1, y: 3.1, width: 3, height: 3.8))
+            handle.lineWidth = 1.3
+            handle.stroke()
+
+            let cup = NSBezierPath(roundedRect: NSRect(x: 9.6, y: 1.9, width: 5.7, height: 6.5), xRadius: 1.3, yRadius: 1.3)
+            cup.lineWidth = 1.3
+            if isActive { cup.fill() } else { cup.stroke() }
 
             if isActive {
-                let rays = NSBezierPath()
-                rays.lineWidth = 1.25
-                for (start, end) in [
-                    (NSPoint(x: 9, y: 12.6), NSPoint(x: 9, y: 13.5)),
-                    (NSPoint(x: 6.1, y: 9.5), NSPoint(x: 5.2, y: 9.5)),
-                    (NSPoint(x: 11.9, y: 9.5), NSPoint(x: 12.8, y: 9.5))
-                ] {
-                    rays.move(to: start)
-                    rays.line(to: end)
-                }
-                rays.stroke()
+                let steam = NSBezierPath()
+                steam.lineWidth = 1.2
+                steam.lineCapStyle = .round
+                steam.move(to: NSPoint(x: 11.2, y: 9.5))
+                steam.curve(
+                    to: NSPoint(x: 11.5, y: 12.2),
+                    controlPoint1: NSPoint(x: 10.3, y: 10.3),
+                    controlPoint2: NSPoint(x: 12.2, y: 11.2)
+                )
+                steam.move(to: NSPoint(x: 13.6, y: 9.5))
+                steam.curve(
+                    to: NSPoint(x: 13.9, y: 12.2),
+                    controlPoint1: NSPoint(x: 12.7, y: 10.3),
+                    controlPoint2: NSPoint(x: 14.6, y: 11.2)
+                )
+                steam.stroke()
             }
-
-            let stand = NSBezierPath()
-            stand.lineWidth = 1.5
-            stand.move(to: NSPoint(x: 7, y: 2))
-            stand.line(to: NSPoint(x: 11, y: 2))
-            stand.move(to: NSPoint(x: 9, y: 2))
-            stand.line(to: NSPoint(x: 9, y: 3.5))
-            stand.stroke()
             return true
         }
         image.isTemplate = true
