@@ -46,11 +46,30 @@ private enum StatusIcon {
             stand.line(to: NSPoint(x: 6, y: 6.1))
             stand.stroke()
 
-            let handle = NSBezierPath(ovalIn: NSRect(x: 14.1, y: 3.1, width: 3, height: 3.8))
+            let handle = NSBezierPath(ovalIn: NSRect(x: 13.9, y: 3, width: 3.2, height: 4.1))
             handle.lineWidth = 1.3
             handle.stroke()
 
-            let cup = NSBezierPath(roundedRect: NSRect(x: 9.6, y: 1.9, width: 5.7, height: 6.5), xRadius: 1.3, yRadius: 1.3)
+            let cup = NSBezierPath()
+            cup.move(to: NSPoint(x: 9.5, y: 8.2))
+            cup.curve(
+                to: NSPoint(x: 15.3, y: 8.2),
+                controlPoint1: NSPoint(x: 9.5, y: 8.55),
+                controlPoint2: NSPoint(x: 15.3, y: 8.55)
+            )
+            cup.line(to: NSPoint(x: 15, y: 4.3))
+            cup.curve(
+                to: NSPoint(x: 13.6, y: 2),
+                controlPoint1: NSPoint(x: 14.9, y: 2.9),
+                controlPoint2: NSPoint(x: 14.4, y: 2)
+            )
+            cup.line(to: NSPoint(x: 11.2, y: 2))
+            cup.curve(
+                to: NSPoint(x: 9.8, y: 4.3),
+                controlPoint1: NSPoint(x: 10.4, y: 2),
+                controlPoint2: NSPoint(x: 9.9, y: 2.9)
+            )
+            cup.close()
             cup.lineWidth = 1.3
             if isActive { cup.fill() } else { cup.stroke() }
 
